@@ -13,59 +13,6 @@
   # http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
   "use strict"
 
-  # @class abstract: that must be extended to work properly with Frontend framework
-  class Abstract
-    
-    # @method constructor: main object constructor
-    constructor: ->
-      # expose what need to be exposed
-      @_exposed = [] if not @_exposed
-      if @_exposed.length > 0
-        for method in @_exposed
-          @exposeMethod method
-    
-    # @method setElement: automatically used to bind onLoad function on window object, note: if you don't call @ready() of Abstract class this is not done automatically setElement: used directly from Frontend framework to register sets of elements corresponding to elements added dynamically 
-    # @param el: DOM Object
-    setElement: (el)->
-      @element = el
-      
-    # @method util: not yet used  
-    init: ->
-
-    # @method load: automatically used to bind onLoad function on window object, note: if you don't call @ready() of Abstract class this is not done automatically (this is a common mistake) 
-    load: ->
-
-    # @method ready: calls bindings and binds load function on window load, if the object is runnable it's called on document ready
-    ready: ->
-      @bindings()
-      $(w).load @proxy @load
-
-    # @method bindings: as for other methods this is used only to organize code, in particular this function would wrap all event bindings, called on ready method
-    bindings: ->
-
-    # @method isRunnable: called from Frontend framework to know if the registered object is also runnable; this is useful to exploit browser caching system, you have only to include all your JS code everywhere leaving to Frontend framework the run policy
-    # @return boolean: default true, that means always runnable
-    isRunnable: ->
-      true
-      
-    # @method isInitialize: not yet used, the ideal aim is to manage automatically object re-initialization
-    isInitialized: ->
-      !!@initialized
-
-    # @method reinit: calls @ready, not useful at the moment, the future aim is the same for @isIinitialized
-    reinit: ->
-      @ready()
-      
-    # @method proxy: util to use jQuery callback keeping the original object context, use with care, it's not always needed to have the actual object as context, you can call it with a workaround (see documentation - https://github.com/marcatos/Frontend/wiki/Documentation#context)
-    proxy: (fn)->
-      return $.proxy fn,@
-      
-    # @method exposeMethod: allow to expose directly methods as global functions
-    exposeMethod: (method, overwrite = false)->
-      if w.hasOwnProperty(method) and not overwrite
-        Frontend.log 'method '+method+' already exposed'
-      w[method] = @[method]
-
   # @class Frontend: main framework class
   class Frontend
     
@@ -79,7 +26,61 @@
       @options =
         debug: false
       # abstract class link to Frontend's property to reuse it without exposing it directly into the document
-      @Abstract = Abstract
+        
+      # @class abstract: that must be extended to work properly with Frontend framework
+      @Abstract =
+        class Abstract
+          
+          # @method constructor: main object constructor
+          constructor: ->
+            # expose what need to be exposed
+            @_exposed = [] if not @_exposed
+            if @_exposed.length > 0
+              for method in @_exposed
+                @exposeMethod method
+          
+          # @method setElement: automatically used to bind onLoad function on window object, note: if you don't call @ready() of Abstract class this is not done automatically setElement: used directly from Frontend framework to register sets of elements corresponding to elements added dynamically 
+          # @param el: DOM Object
+          setElement: (el)->
+            @element = el
+            
+          # @method util: not yet used  
+          init: ->
+      
+          # @method load: automatically used to bind onLoad function on window object, note: if you don't call @ready() of Abstract class this is not done automatically (this is a common mistake) 
+          load: ->
+      
+          # @method ready: calls bindings and binds load function on window load, if the object is runnable it's called on document ready
+          ready: ->
+            @bindings()
+            $(w).load @proxy @load
+      
+          # @method bindings: as for other methods this is used only to organize code, in particular this function would wrap all event bindings, called on ready method
+          bindings: ->
+      
+          # @method isRunnable: called from Frontend framework to know if the registered object is also runnable; this is useful to exploit browser caching system, you have only to include all your JS code everywhere leaving to Frontend framework the run policy
+          # @return boolean: default true, that means always runnable
+          isRunnable: ->
+            true
+            
+          # @method isInitialize: not yet used, the ideal aim is to manage automatically object re-initialization
+          isInitialized: ->
+            !!@initialized
+      
+          # @method reinit: calls @ready, not useful at the moment, the future aim is the same for @isIinitialized
+          reinit: ->
+            @ready()
+            
+          # @method proxy: util to use jQuery callback keeping the original object context, use with care, it's not always needed to have the actual object as context, you can call it with a workaround (see documentation - https://github.com/marcatos/Frontend/wiki/Documentation#context)
+          proxy: (fn)->
+            return $.proxy fn,@
+            
+          # @method exposeMethod: allow to expose directly methods as global functions
+          exposeMethod: (method, overwrite = false)->
+            if w.hasOwnProperty(method) and not overwrite
+              Frontend.log 'method '+method+' already exposed'
+            w[method] = @[method]
+
 
     # register, unregister, registry - thankyou Magento for your inspiring code
     
