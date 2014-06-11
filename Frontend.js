@@ -8,7 +8,19 @@ var __hasProp = {}.hasOwnProperty,
   var Abstract, Config, Frontend;
   Abstract = (function() {
 
-    function Abstract() {}
+    function Abstract() {
+      var method, _i, _len, _ref;
+      if (!this._exposed) {
+        this._exposed = [];
+      }
+      if (this._exposed.length > 0) {
+        _ref = this._exposed;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          method = _ref[_i];
+          this.exposeMethod(method);
+        }
+      }
+    }
 
     Abstract.prototype.setElement = function(el) {
       return this.element = el;
@@ -39,6 +51,16 @@ var __hasProp = {}.hasOwnProperty,
 
     Abstract.prototype.proxy = function(fn) {
       return $.proxy(fn, this);
+    };
+
+    Abstract.prototype.exposeMethod = function(method, overwrite) {
+      if (overwrite == null) {
+        overwrite = false;
+      }
+      if (w.hasOwnProperty(method) && !overwrite) {
+        Frontend.log('method ' + method + ' already exposed');
+      }
+      return w[method] = this[method];
     };
 
     return Abstract;

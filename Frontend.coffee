@@ -16,6 +16,14 @@
   # @class abstract: that must be extended to work properly with Frontend framework
   class Abstract
     
+    # @method constructor: main object constructor
+    constructor: ->
+      # expose what need to be exposed
+      @_exposed = [] if not @_exposed
+      if @_exposed.length > 0
+        for method in @_exposed
+          @exposeMethod method
+    
     # @method setElement: automatically used to bind onLoad function on window object, note: if you don't call @ready() of Abstract class this is not done automatically setElement: used directly from Frontend framework to register sets of elements corresponding to elements added dynamically 
     # @param el: DOM Object
     setElement: (el)->
@@ -51,6 +59,12 @@
     # @method proxy: util to use jQuery callback keeping the original object context, use with care, it's not always needed to have the actual object as context, you can call it with a workaround (see documentation - https://github.com/marcatos/Frontend/wiki/Documentation#context)
     proxy: (fn)->
       return $.proxy fn,@
+      
+    # @method exposeMethod: allow to expose directly methods as global functions
+    exposeMethod: (method, overwrite = false)->
+      if w.hasOwnProperty(method) and not overwrite
+        Frontend.log 'method '+method+' already exposed'
+      w[method] = @[method]
 
   # @class Frontend: main framework class
   class Frontend
