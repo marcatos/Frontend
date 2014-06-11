@@ -12,3 +12,15 @@ Using this framework you must follow some simple directives to maintain the init
 *   use properly the semantic inherited methods from Abstract class
 
 Check the [documentation](https://github.com/marcatos/Frontend/wiki/Documentation "Documentation") to find more specific indications for the use and contribute the project [reporting issues](https://github.com/marcatos/Frontend/issues) and proposing new features to implements.
+
+###TODO:
+
+*  implements a simpler method to register new objects without defining every time closure, use strict and required Abstract extension, something like 
+
+   ```coffeescript
+   Frontend.register("key", class MyClass
+       constructor: ->
+           # do whatever you want
+           super
+   ,"#optional.selector")
+   ```
