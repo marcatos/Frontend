@@ -155,7 +155,7 @@
   w.Frontend = new Frontend;
 
   # contextually used to store settings as object property server side 
-  class Config extends Abstract
+  class Config extends w.Frontend.Abstract
     log: ->
       console.log @
   
