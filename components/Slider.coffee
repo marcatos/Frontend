@@ -1,8 +1,7 @@
-(($, d, w) ->
-  "use strict"
+Frontend.register_new("slider",
   
-  # extends Abstract to work properly with framework
-  class Slider extends Frontend.Abstract
+  
+  class FrontendClass.Slider extends Frontend.Abstract
   
     constructor: ->
       
@@ -245,7 +244,4 @@
       # effective stop
       w.clearInterval @interval
 
-  Frontend.register("slider", Slider,'.slider');
-
-) Frontend.$, document, window 
-
+,'.slider')

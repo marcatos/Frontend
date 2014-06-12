@@ -7,6 +7,9 @@ var __hasProp = {}.hasOwnProperty,
 
   var Config, Frontend;
   Frontend = (function() {
+    var nameFromToStringRegex;
+
+    nameFromToStringRegex = /^function\s?([^\s(]*)/;
 
     function Frontend() {
       var Abstract;
@@ -77,6 +80,22 @@ var __hasProp = {}.hasOwnProperty,
       })();
     }
 
+    Frontend.prototype.getClassName = function(object) {
+      var result;
+      if (typeof fn !== 'function') {
+        this.log('can get class name only from type function ' + (typeof object) + ' found');
+      }
+      result = "";
+      if (typeof object === "function") {
+        result = object.name || object.toString().match(nameFromToStringRegex)[1];
+      } else {
+        if (typeof object.constructor === "function") {
+          result = className(object.constructor, defaultName);
+        }
+      }
+      return result || defaultName;
+    };
+
     Frontend.prototype.register = function(key, obj, selector) {
       if (key in this._registry) {
         this.log("key [" + key + "] already present in _registry: ", this._registry[key]);
@@ -84,6 +103,18 @@ var __hasProp = {}.hasOwnProperty,
       }
       return this._registry[key] = {
         object: obj,
+        selector: selector
+      };
+    };
+
+    Frontend.prototype.register_new = function(key, objectClass, selector) {
+      if (key in this._registry) {
+        this.log("key [" + key + "] already present in _registry: ", this._registry[key]);
+        return false;
+      }
+      this.objectName = this.getClassName(objectClass);
+      return this._registry[key] = {
+        'class': Frontend[this.objectName],
         selector: selector
       };
     };
@@ -110,17 +141,23 @@ var __hasProp = {}.hasOwnProperty,
       var self;
       self = this;
       $.each(self._registry, function(k, v) {
-        if (typeof v.object === "function" && typeof v.object !== "object") {
+        if (typeof v["class"] === "function" && typeof v.object !== "object") {
           if (typeof v.selector === "string") {
             $(v.selector).each(function(i) {
-              self.register(k + '_' + i, new v.object);
-              return self.registry(k + '_' + i).setElement(this);
+              return self.register_new(k + '_' + i, v["class"], this);
             });
             return self.unregister(k);
           }
         }
       });
       return $.each(self._registry, function(k, v) {
+        if (v['class']) {
+          v.object = new v['class'];
+          if (typeof v.selector === 'object') {
+            v.object.setElement(v.selector);
+          }
+          console.log(v);
+        }
         if ("ready" in v.object && typeof v.object.ready === "function") {
           if (v.object.isRunnable()) {
             v.object.ready();
@@ -144,6 +181,7 @@ var __hasProp = {}.hasOwnProperty,
     return Frontend;
 
   })();
+  w.FrontendClass = Frontend;
   w.Frontend = new Frontend;
   Config = (function(_super) {
 

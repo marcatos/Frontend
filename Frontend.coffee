@@ -12,10 +12,11 @@
 (($, d, w) ->
   # http://ejohn.org/blog/ecmascript-5-strict-mode-json-and-more/
   "use strict"
-
+  
   # @class Frontend: main framework class
   class Frontend
-    
+    nameFromToStringRegex = /^function\s?([^\s(]*)/
+
     # @method constructor: framework constructor with main properties setup
     constructor: () ->
       # embed jQuery into Frontend to prevent accidental multiple jQuery inclusions and overwriting
@@ -82,6 +83,15 @@
             w[method] = @[method]
 
 
+    getClassName: (object)->
+      if typeof fn isnt 'function'
+        @log 'can get class name only from type function '+(typeof object)+' found'
+      result = ""
+      if typeof object is "function"
+        result = object.name or object.toString().match(nameFromToStringRegex)[1]
+      else result = className(object.constructor, defaultName)  if typeof object.constructor is "function"
+      result or defaultName
+
     # register, unregister, registry - thankyou Magento for your inspiring code
     
     # @method register: setter - stores object associated with a unique key, checks if key already exists; if selector parameter is specified the obj is expected as function type (class) instead of Object (class instance), in this case key is used as key prefix appending incremental counter
@@ -93,6 +103,17 @@
         @log "key [" + key + "] already present in _registry: ", @_registry[key]
         return false
       @_registry[key] = {object:obj,selector:selector}
+      
+    register_new: (key, objectClass, selector) ->
+      if key of @_registry
+        @log "key [" + key + "] already present in _registry: ", @_registry[key]
+        return false
+        
+      @objectName = @getClassName objectClass
+      #Frontend[@objectName] extends @Abstract
+
+      #console.log @_registry[key]
+      @_registry[key] = {'class': Frontend[@objectName],selector:selector}
 
     # @method register: removes object registered by key, used to update registry key (needed in very few cases)   
     # @param (string) key: unique key to retrive and delete the object 
@@ -118,26 +139,32 @@
       # dynamic object instantiation, if selector is specified during register
       $.each self._registry, (k, v) ->
         
-        if typeof (v.object) is "function" and typeof (v.object) isnt "object"
+        if typeof (v.class) is "function" and typeof (v.object) isnt "object"
           if typeof(v.selector) is "string"
             
             # loop over selector
             $(v.selector).each (i)->
               
               # register new object
-              self.register k+'_'+i, new v.object
-              self.registry(k+'_'+i).setElement this
+              self.register_new k+'_'+i, v.class, this
               
             # unregister the original item (do I need this?)
             self.unregister k
               
       # loop over registered objects 
       $.each self._registry, (k, v) ->
-            
+        
+        if v['class']
+          v.object = new v['class']
+          v.object.setElement v.selector if typeof v.selector is 'object'
+          console.log v
+
+        
         # check if object is runnable
         if "ready" of v.object and typeof (v.object.ready) is "function"
           if v.object.isRunnable()
-            
+            #if v['class']
+              #console.log v.object.ready
             # run it
             v.object.ready()
             self._registry[k].object.initialized = true
@@ -152,14 +179,20 @@
       w.console and console.log.call(console, arguments_)  if @options and @options.debug
   
   # expose the framework  
+  w.FrontendClass = Frontend;
   w.Frontend = new Frontend;
 
   # contextually used to store settings as object property server side 
   class Config extends w.Frontend.Abstract
     log: ->
       console.log @
+      
+#  class Frontend.Test
+#    log: ->
+#      console.log @
   
   w.Frontend.register("config", new Config);
+#  w.Frontend.register_new("test", Frontend.Test,'li');
 
   # run the Frontend
   $(d).ready ->
