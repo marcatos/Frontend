@@ -19,6 +19,7 @@ var __hasProp = {}.hasOwnProperty,
 
         function Abstract() {
           var method, _i, _len, _ref;
+          this.className = this.constructor.name;
           if (!this._exposed) {
             this._exposed = [];
           }
@@ -66,10 +67,13 @@ var __hasProp = {}.hasOwnProperty,
           if (overwrite == null) {
             overwrite = false;
           }
-          if (w.hasOwnProperty(method) && !overwrite) {
+          if (!(this.className in w)) {
+            w[this.className] = {};
+          }
+          if (w[this.className].hasOwnProperty(method) && !overwrite) {
             Frontend.log('method ' + method + ' already exposed');
           }
-          return w[method] = this[method];
+          return w[this.className][method] = this[method];
         };
 
         return Abstract;

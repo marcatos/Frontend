@@ -33,6 +33,10 @@
           
           # @method constructor: main object constructor
           constructor: ->
+            
+            # current object className
+            @className = @.constructor.name
+          
             # expose what need to be exposed
             @_exposed = [] if not @_exposed
             if @_exposed.length > 0
@@ -77,9 +81,11 @@
             
           # @method exposeMethod: allow to expose directly methods as global functions
           exposeMethod: (method, overwrite = false)->
-            if w.hasOwnProperty(method) and not overwrite
+            if not (@className of w)
+              w[@className] = {}
+            if w[@className].hasOwnProperty(method) and not overwrite
               Frontend.log 'method '+method+' already exposed'
-            w[method] = @[method]
+            w[@className][method] = @[method]
 
 
     # register, unregister, registry - thankyou Magento for your inspiring code
