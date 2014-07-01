@@ -141,7 +141,7 @@ var __hasProp = {}.hasOwnProperty,
 
     Frontend.prototype.log = function() {
       if (this.options && this.options.debug) {
-        return w.console && console.log.call(console, arguments_);
+        return w.console && console.log.call(console, arguments);
       }
     };
 

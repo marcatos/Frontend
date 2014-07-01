@@ -155,7 +155,7 @@
     
     # @method log: console.log wrapper, prevents exceptions thrown by forgotten debug code lines
     log: ->
-      w.console and console.log.call(console, arguments_)  if @options and @options.debug
+      w.console and console.log.call(console, arguments)  if @options and @options.debug
   
   # expose the framework  
   w.Frontend = new Frontend;
