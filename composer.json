@@ -1,0 +1,30 @@
+{
+    "name": "marcatos/Frontend",
+    "type": "jquery-module",
+    "description": "Frontend.js is a minimalistic framework that helps who usually use jQuery library to develop site's frontend.",
+    "authors": [
+        {
+            "name": "Simone Marcato",
+            "email": "simone@filoblu.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/magento-hackathon/magento-composer-installer"
+        }
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer":"*"
+    },
+    "extra": {
+        "magento-root-dir": "./",
+        "magento-deploystrategy": "copy",
+        "map": [
+            ["Frontend*.js", "js/Frontend"]
+        ]
+    },
+    "config": {
+        "preferred-install": "dist"
+    }
+}
