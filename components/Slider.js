@@ -28,6 +28,7 @@ var __hasProp = {}.hasOwnProperty,
         control_prev_class: "control prev",
         per_page: 5,
         effect: "slide",
+        bind_navigation: true,
         slide_config: {
           queue: false,
           duration: 600,
@@ -101,16 +102,28 @@ var __hasProp = {}.hasOwnProperty,
     };
 
     Slider.prototype.build_navigation = function() {
-      var i, item, s, _i, _len, _ref;
+      var i, item, s, self, _fn, _i, _len, _ref;
+      self = this;
       this.navigation = $('<ul>').addClass(this.config.navigation_class);
       _ref = this.slides;
+      _fn = function(i, self) {
+        if (self.config.bind_navigation) {
+          return item.on('click', function() {
+            return self.to(i);
+          });
+        }
+      };
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         s = _ref[i];
         item = $('<li>').addClass(this.config.navigation_item_class);
         if (i === this.current) {
           item.addClass(this.config.navigation_item_class_current);
         }
+        _fn(i, this);
         item.appendTo(this.navigation);
+      }
+      if (this.config.bind_navigation) {
+        this.navigation.addClass('clickable');
       }
       return this.navigation.appendTo(this.element);
     };

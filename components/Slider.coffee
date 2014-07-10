@@ -23,6 +23,7 @@
           control_prev_class: "control prev"
           per_page: 5
           effect: "slide"
+          bind_navigation: true
           slide_config: {
             queue: false,
             duration: 600,
@@ -114,7 +115,8 @@
         @config.effect is "slide"
 
       build_navigation: ->
-
+        self = @
+        
         # create the navigation wrapper
         @navigation = $('<ul>').addClass @config.navigation_class
 
@@ -122,8 +124,14 @@
           # and create an element for each slide
           item = $('<li>').addClass @config.navigation_item_class
           item.addClass @config.navigation_item_class_current if i is @current
+          ((i, self)->
+            if self.config.bind_navigation
+              item.on 'click', ->
+                self.to(i)
+          ) i, @
           item.appendTo @navigation
-
+        
+        @navigation.addClass 'clickable' if @config.bind_navigation
         # show it
         @navigation.appendTo @element
 
@@ -138,10 +146,10 @@
 
           # and then binf the real control
           @controls.next.on 'click', $.proxy ->
-           @stop()
-           @next()
-           # start only if needed and isn't started yet
-           @start() if @config.autoslide and not @started
+            @stop()
+            @next()
+            # start only if needed and isn't started yet
+            @start() if @config.autoslide and not @started
           ,@
 
         # same for prev control
