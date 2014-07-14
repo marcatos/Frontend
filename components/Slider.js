@@ -115,7 +115,7 @@ var __hasProp = {}.hasOwnProperty,
       };
       for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
         s = _ref[i];
-        item = $('<li>').addClass(this.config.navigation_item_class);
+        item = $('<li>').addClass(this.config.navigation_item_class).text(i + 1);
         if (i === this.current) {
           item.addClass(this.config.navigation_item_class_current);
         }
