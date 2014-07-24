@@ -57,7 +57,7 @@
         @fetch_slide()
 
         # what's the current slide
-        @current = @slides.filter(':visible').eq(0).index()
+        @current = @visibleSlides.filter(':visible').eq(0).index()
 
         # do we have enough slides
         if @total <= @config.per_page
@@ -101,10 +101,11 @@
         @config.effect = "fade" if @config.effect is "slide" and "scrollTo" in w
 
         # show the initial page
-        @slides.filter(':gt('+(@config.per_page-1)+')').hide() if @is_fade()
+        @visibleSlides.filter(':gt('+(@config.per_page-1)+')').hide() if @is_fade()
 
         # and set the proper width
-        @slides.css width: ( ( Math.floor( 10000 / @config.per_page) / 100 ) + '%' ) if @is_slide() && @config.set_dimension
+        @slidesWidth = Math.floor( 10000 / @config.per_page) / 100
+        @visibleSlides.css width: ( @slidesWidth + '%' ) if @is_slide() && @config.set_dimension
 
       # shortcut method  
       is_fade: ->
@@ -120,7 +121,7 @@
         # create the navigation wrapper
         @navigation = $('<ul>').addClass @config.navigation_class
 
-        for s,i in @slides
+        for s,i in @visibleSlides
           # and create an element for each slide
           item = $('<li>').addClass(@config.navigation_item_class).text(i+1)
           item.addClass @config.navigation_item_class_current if i is @current
@@ -178,8 +179,9 @@
       fetch_slide: ->
 
         # we care about only visible elements
-        @slides = $(@config.child_selector,@element).filter(':visible')
-        @total = @slides.length
+        @slides = $(@config.child_selector,@element)
+        @visibleSlides = @slides.filter(':visible')
+        @total = @visibleSlides.length
 
       # commont slider start method
       start: ->
@@ -200,7 +202,10 @@
         return if @locked
 
         # update the current index
+        oldCurrent = @current
         @current = (@current + 1) % (@total - @config.per_page + 1)
+        # @direction = (if oldCurrent < @current then 1 else -1)
+        @direction = 1
 
         # move
         @to @current
@@ -213,12 +218,14 @@
 
         # update the current index
         @current = (@current + @total - @config.per_page) % (@total - @config.per_page + 1)
+        @direction = -1
 
         # move
         @to @current
 
       # generic move to method, allow non-serial movements
       to: (i)->
+        self = @
 
         # always if we can
         return if @locked
@@ -226,13 +233,34 @@
         # manage the effect type 
         # fading
         if @is_fade()
-          @slides.not(':eq('+i+')').fadeOut()
-          @slides.eq(i).fadeIn($.proxy @current_slide_classes,@)
+          @visibleSlides.not(':eq('+i+')').fadeOut()
+          @visibleSlides.eq(i).fadeIn($.proxy @current_slide_classes,@)
 
         # and sliding
         if @is_slide()
-          $(@slider).stop().scrollTo @slides.eq(i), $.extend @config.slide_config, 
-            onAfter: $.proxy @current_slide_classes,@
+          # keep track of the total element to wait before run onAfterSlider
+          @config.slide_config.complete = ->
+            self.slidesAnimationCounter++
+            self.onAfterSlide() if self.slidesAnimationCounter is self.slides.length
+          
+          @slidesAnimationCounter = 0
+          
+          # if is prev adjust then animate
+          if @direction is -1
+            @slides.eq(@slides.length-1).insertBefore(@slides.eq(0))
+            @slides.css
+              left: '-'+self.slidesWidth+'%'
+            @slides.each (i)->
+              $(@).animate
+                left: '0'
+              , self.config.slide_config
+          
+          # if is next animate then adjust
+          if @direction is 1
+            @slides.each (i)->
+              $(@).animate
+                left: '-'+self.slidesWidth+'%'
+              , self.config.slide_config
 
         # remember also tu update slider navigation, if present
         if @config.navigation
@@ -240,8 +268,8 @@
 
       # adjust slides classes, useful to style properly elements
       current_slide_classes: ()->
-        @slides.removeClass(@config.child_selector_current);
-        @slides.eq(@current).addClass(@config.child_selector_current);
+        @visibleSlides.removeClass(@config.child_selector_current);
+        @visibleSlides.eq(@current).addClass(@config.child_selector_current);
 
       # the rock... no, the slider
       stop: ->
@@ -252,6 +280,17 @@
 
         # effective stop
         w.clearInterval @interval
+        
+      onAfterSlide: ->
+        # adjust after if direction is next
+        if @direction is 1
+          @slides.eq(0).insertAfter(@slides.eq(@slides.length-1))
+          
+        # prepare for the next cycle
+        @fetch_slide()
+        @slides.css
+          left: 0
+        
 
   ,'.slider'
 
