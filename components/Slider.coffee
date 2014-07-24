@@ -23,6 +23,7 @@
           control_prev_class: "control prev"
           per_page: 5
           effect: "slide"
+          circular: true
           bind_navigation: true
           slide_config: {
             queue: false,
@@ -238,29 +239,35 @@
 
         # and sliding
         if @is_slide()
-          # keep track of the total element to wait before run onAfterSlider
-          @config.slide_config.complete = ->
-            self.slidesAnimationCounter++
-            self.onAfterSlide() if self.slidesAnimationCounter is self.slides.length
-          
-          @slidesAnimationCounter = 0
-          
-          # if is prev adjust then animate
-          if @direction is -1
-            @slides.eq(@slides.length-1).insertBefore(@slides.eq(0))
-            @slides.css
-              left: '-'+self.slidesWidth+'%'
-            @slides.each (i)->
-              $(@).animate
-                left: '0'
-              , self.config.slide_config
-          
-          # if is next animate then adjust
-          if @direction is 1
-            @slides.each (i)->
-              $(@).animate
+        
+          if @config.circular is true
+
+            # keep track of the total element to wait before run onAfterSlider
+            @config.slide_config.complete = ->
+              self.slidesAnimationCounter++
+              self.onAfterSlide() if self.slidesAnimationCounter is self.slides.length
+
+            @slidesAnimationCounter = 0
+
+            # if is prev adjust then animate
+            if @direction is -1
+              @slides.eq(@slides.length-1).insertBefore(@slides.eq(0))
+              @slides.css
                 left: '-'+self.slidesWidth+'%'
-              , self.config.slide_config
+              @slides.each (i)->
+                $(@).animate
+                  left: '0'
+                , self.config.slide_config
+
+            # if is next animate then adjust
+            if @direction is 1
+              @slides.each (i)->
+                $(@).animate
+                  left: '-'+self.slidesWidth+'%'
+                , self.config.slide_config
+          else
+            $(@slider).stop().scrollTo @visibleSlides.eq(i), $.extend @config.slide_config, 
+              onAfter: $.proxy @current_slide_classes,@
 
         # remember also tu update slider navigation, if present
         if @config.navigation

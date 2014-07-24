@@ -28,6 +28,7 @@ var __hasProp = {}.hasOwnProperty,
         control_prev_class: "control prev",
         per_page: 5,
         effect: "slide",
+        circular: true,
         bind_navigation: true,
         slide_config: {
           queue: false,
@@ -208,30 +209,36 @@ var __hasProp = {}.hasOwnProperty,
         this.visibleSlides.eq(i).fadeIn($.proxy(this.current_slide_classes, this));
       }
       if (this.is_slide()) {
-        this.config.slide_config.complete = function() {
-          self.slidesAnimationCounter++;
-          if (self.slidesAnimationCounter === self.slides.length) {
-            return self.onAfterSlide();
-          }
-        };
-        this.slidesAnimationCounter = 0;
-        if (this.direction === -1) {
-          this.slides.eq(this.slides.length - 1).insertBefore(this.slides.eq(0));
-          this.slides.css({
-            left: '-' + self.slidesWidth + '%'
-          });
-          this.slides.each(function(i) {
-            return $(this).animate({
-              left: '0'
-            }, self.config.slide_config);
-          });
-        }
-        if (this.direction === 1) {
-          this.slides.each(function(i) {
-            return $(this).animate({
+        if (this.config.circular === true) {
+          this.config.slide_config.complete = function() {
+            self.slidesAnimationCounter++;
+            if (self.slidesAnimationCounter === self.slides.length) {
+              return self.onAfterSlide();
+            }
+          };
+          this.slidesAnimationCounter = 0;
+          if (this.direction === -1) {
+            this.slides.eq(this.slides.length - 1).insertBefore(this.slides.eq(0));
+            this.slides.css({
               left: '-' + self.slidesWidth + '%'
-            }, self.config.slide_config);
-          });
+            });
+            this.slides.each(function(i) {
+              return $(this).animate({
+                left: '0'
+              }, self.config.slide_config);
+            });
+          }
+          if (this.direction === 1) {
+            this.slides.each(function(i) {
+              return $(this).animate({
+                left: '-' + self.slidesWidth + '%'
+              }, self.config.slide_config);
+            });
+          }
+        } else {
+          $(this.slider).stop().scrollTo(this.visibleSlides.eq(i), $.extend(this.config.slide_config, {
+            onAfter: $.proxy(this.current_slide_classes, this)
+          }));
         }
       }
       if (this.config.navigation) {
