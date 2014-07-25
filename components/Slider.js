@@ -107,7 +107,8 @@ var __hasProp = {}.hasOwnProperty,
       var i, item, s, self, _fn, _i, _len, _ref;
       self = this;
       this.navigation = $('<ul>').addClass(this.config.navigation_class);
-      _ref = this.visibleSlides;
+      console.log(this.slides);
+      _ref = this.slides;
       _fn = function(i, self) {
         if (self.config.bind_navigation) {
           return item.on('click', function() {

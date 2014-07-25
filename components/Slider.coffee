@@ -121,8 +121,8 @@
         
         # create the navigation wrapper
         @navigation = $('<ul>').addClass @config.navigation_class
-
-        for s,i in @visibleSlides
+        console.log @slides
+        for s,i in @slides
           # and create an element for each slide
           item = $('<li>').addClass(@config.navigation_item_class).text(i+1)
           item.addClass @config.navigation_item_class_current if i is @current
