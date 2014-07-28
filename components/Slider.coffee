@@ -25,6 +25,7 @@
           effect: "slide"
           circular: true
           bind_navigation: true
+          start_after_click: true
           slide_config: {
             queue: false,
             duration: 600,
@@ -88,7 +89,7 @@
         @config.slide_config = null if typeof @config.slide_config isnt "object" and @is_slide()
 
         # hide the initial config (useless but cleaner code while inspecting)
-        $(@element).removeAttr 'data-config'
+        # $(@element).removeAttr 'data-config'
 
       setup: ->
 
@@ -121,7 +122,7 @@
         
         # create the navigation wrapper
         @navigation = $('<ul>').addClass @config.navigation_class
-        console.log @slides
+        
         for s,i in @slides
           # and create an element for each slide
           item = $('<li>').addClass(@config.navigation_item_class).text(i+1)
@@ -129,7 +130,9 @@
           ((i, self)->
             if self.config.bind_navigation
               item.on 'click', ->
+                self.stop()
                 self.to(i)
+                self.start() if self.config.autoslide and not self.started and self.config.start_after_click
           ) i, @
           item.appendTo @navigation
         
@@ -151,7 +154,7 @@
             @stop()
             @next()
             # start only if needed and isn't started yet
-            @start() if @config.autoslide and not @started
+            @start() if @config.autoslide and not @started and @config.start_after_click
           ,@
 
         # same for prev control
@@ -165,7 +168,7 @@
             @stop()
             @prev()
             # start only if needed and isn't started yet
-            @start() if @config.autoslide and not @started
+            @start() if @config.autoslide and not @started and @config.start_after_click
           ,@
 
         # once controls are built, check if we need to see them, useful when slides change after the firt document load
@@ -186,10 +189,10 @@
 
       # commont slider start method
       start: ->
-
+      
         # if is locked or already started no need to restart
         return if @locked or @started
-
+        
         # yes, we started
         @started = true
 
@@ -284,7 +287,7 @@
 
         # and remember that now is stopped
         @started = false
-
+        
         # effective stop
         w.clearInterval @interval
         

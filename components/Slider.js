@@ -30,6 +30,7 @@ var __hasProp = {}.hasOwnProperty,
         effect: "slide",
         circular: true,
         bind_navigation: true,
+        start_after_click: true,
         slide_config: {
           queue: false,
           duration: 600,
@@ -73,9 +74,8 @@ var __hasProp = {}.hasOwnProperty,
     Slider.prototype.read_config = function() {
       $.extend(this.config, this.defaults, $(this.element).data('config'));
       if (typeof this.config.slide_config !== "object" && this.is_slide()) {
-        this.config.slide_config = null;
+        return this.config.slide_config = null;
       }
-      return $(this.element).removeAttr('data-config');
     };
 
     Slider.prototype.setup = function() {
@@ -107,12 +107,15 @@ var __hasProp = {}.hasOwnProperty,
       var i, item, s, self, _fn, _i, _len, _ref;
       self = this;
       this.navigation = $('<ul>').addClass(this.config.navigation_class);
-      console.log(this.slides);
       _ref = this.slides;
       _fn = function(i, self) {
         if (self.config.bind_navigation) {
           return item.on('click', function() {
-            return self.to(i);
+            self.stop();
+            self.to(i);
+            if (self.config.autoslide && !self.started && self.config.start_after_click) {
+              return self.start();
+            }
           });
         }
       };
@@ -138,7 +141,7 @@ var __hasProp = {}.hasOwnProperty,
         this.controls.next.on('click', $.proxy(function() {
           this.stop();
           this.next();
-          if (this.config.autoslide && !this.started) {
+          if (this.config.autoslide && !this.started && this.config.start_after_click) {
             return this.start();
           }
         }, this));
@@ -151,7 +154,7 @@ var __hasProp = {}.hasOwnProperty,
         this.controls.prev.on('click', $.proxy(function() {
           this.stop();
           this.prev();
-          if (this.config.autoslide && !this.started) {
+          if (this.config.autoslide && !this.started && this.config.start_after_click) {
             return this.start();
           }
         }, this));
