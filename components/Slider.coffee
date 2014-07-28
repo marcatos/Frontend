@@ -36,6 +36,7 @@
         @interval = false
         @controls = {}
         @locked = false
+        @animateFunction = (if Frontend.$.velocity then 'velocity' else 'animate')
 
         # call parent constructor
         super
@@ -258,14 +259,14 @@
               @slides.css
                 left: '-'+self.slidesWidth+'%'
               @slides.each (i)->
-                $(@).animate
+                $(@)[self.animateFunction]
                   left: '0'
                 , self.config.slide_config
 
             # if is next animate then adjust
             if @direction is 1
               @slides.each (i)->
-                $(@).animate
+                $(@)[self.animateFunction]
                   left: '-'+self.slidesWidth+'%'
                 , self.config.slide_config
           else

@@ -41,6 +41,7 @@ var __hasProp = {}.hasOwnProperty,
       this.interval = false;
       this.controls = {};
       this.locked = false;
+      this.animateFunction = (Frontend.$.velocity ? 'velocity' : 'animate');
       Slider.__super__.constructor.apply(this, arguments);
     }
 
@@ -227,14 +228,14 @@ var __hasProp = {}.hasOwnProperty,
               left: '-' + self.slidesWidth + '%'
             });
             this.slides.each(function(i) {
-              return $(this).animate({
+              return $(this)[self.animateFunction]({
                 left: '0'
               }, self.config.slide_config);
             });
           }
           if (this.direction === 1) {
             this.slides.each(function(i) {
-              return $(this).animate({
+              return $(this)[self.animateFunction]({
                 left: '-' + self.slidesWidth + '%'
               }, self.config.slide_config);
             });
